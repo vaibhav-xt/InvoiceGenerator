@@ -9,7 +9,7 @@ export const navigate = () => useNavigate;
 export interface ResponseError extends Error {
     response: {
         data: {
-            message: string,
+            message: Array<string>,
             status: string
         }
     }
@@ -20,5 +20,5 @@ export const errorResponseFunction = (error: unknown) => {
     const errorResponse = error as ResponseError;
     const errorMessage = errorResponse.response?.data?.message || 'Some Error Occurred!';
     const errorStatus = errorResponse.response?.data?.status || 'Failed';
-    return { message: [errorMessage], status: errorStatus }
+    return { message: errorMessage, status: errorStatus }
 }
