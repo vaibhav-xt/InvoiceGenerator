@@ -2,6 +2,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { setMessage } from "./notification.slice.tsx";
 import API, { user_token } from "../services/api.service.tsx";
+import { errorResponseFunction } from "../services/hooks.service.tsx";
 
 export interface UserInterface {
     _id: string;
@@ -35,11 +36,11 @@ export interface FormDataType {
 export const registerAction = createAsyncThunk(`auth/register`, async (formData: FormDataType, { dispatch, rejectWithValue }) => {
     try {
         const { data } = await API.post(`/user/register`, formData);
-        console.log(data, { message: data.message, status: data.status })
         dispatch(setMessage({ message: data.message, status: data.status }));
         return data;
     } catch (error) {
-        dispatch(setMessage({ message: error.response.data.message, status: error.response.data.status }));
+        // Dispatching error message
+        dispatch(setMessage(errorResponseFunction(error)));
         return rejectWithValue("Having some error while registration.");
     }
 });
@@ -52,7 +53,7 @@ export const loginAction = createAsyncThunk(`auth/login`, async (formData: FormD
         dispatch(setMessage({ message: data.message, status: data.status }));
         return data.data;
     } catch (error) {
-        dispatch(setMessage({ message: error.response.data.message, status: error.response.data.status }));
+        dispatch(setMessage(errorResponseFunction(error)));
         return rejectWithValue("Having some error while registration.");
     }
 });

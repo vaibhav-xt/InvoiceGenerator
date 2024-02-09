@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import API from "../services/api.service"
 import { setMessage } from "./notification.slice";
 import { ProductDataType } from "./product.slice";
+import { errorResponseFunction } from "../services/hooks.service";
 
 export interface InvoiceDataType {
     valid_date?: string;
@@ -27,26 +28,27 @@ const initialState: InvoiceSlice = {
     isError: false
 }
 
-export const postInvoice = createAsyncThunk('invoice/post', async (invoice: InvoiceDataType, { dispatch }) => {
+export const postInvoice = createAsyncThunk('invoice/post', async (invoice: InvoiceDataType, { dispatch, rejectWithValue }) => {
     try {
         const { data } = await API.post("/invoice/add", invoice);
         dispatch(getInvoices());
         dispatch(setMessage({ message: data.message, status: data.status }));
         return data.data;
     } catch (error) {
-        const responseData = error.response.data as { message: string, status: string };
-        dispatch(setMessage({ message: responseData.message, status: responseData.status }));
+        dispatch(setMessage(errorResponseFunction(error)));
+        return rejectWithValue("Having some error while registration.");
     }
 })
 
 
-export const getInvoices = createAsyncThunk('invoices/get', async (_, { dispatch }) => {
+export const getInvoices = createAsyncThunk('invoices/get', async (_, { dispatch, rejectWithValue }) => {
     try {
         const { data } = await API.get('invoice/get');
         dispatch(setMessage({ message: data.message, status: data.status }));
         return data.data;
     } catch (error) {
-        dispatch(setMessage({ message: error.response.data.message, status: error.response.data.status }));
+        dispatch(setMessage(errorResponseFunction(error)));
+        return rejectWithValue("Having some error while registration.");
     }
 })
 
